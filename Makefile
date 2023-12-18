@@ -34,7 +34,7 @@ DEPS := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.d,$(SRCS))
 TARGET := $(BIN_DIR)/$(TARGET_NAME)
 
 # Phony targets
-.PHONY: all clean
+.PHONY: all clean run
 
 all: $(TARGET)
 
