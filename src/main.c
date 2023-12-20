@@ -2,7 +2,7 @@
 #include <winsock2.h>
 
 #include "include/sys_sock.h"
-#include "include/http_server.h"
+#include "include/server.h"
 
 // Server config
 const int SERVER_PORT = 8080;
@@ -23,11 +23,20 @@ int main(void) {
   }
 
   printf("Server listening on port %d...\n", server.port);
-  unsigned long client_socket;
+  
+  SOCKET client_socket;
+  char buffer[1024] = {0};
 
   while (TRUE) {
     client_socket = accept(server.socket, NULL, NULL);
-    printf("Accepted connection from client %lu\n", client_socket);
+    if (client_socket != INVALID_SOCKET) {
+      printf("Accepted connection from client %I64d\n", client_socket);
+
+      http_recv(client_socket, buffer, 1024);
+      printf("Result %s", buffer);
+      
+      closesocket(client_socket);
+    }
   }
 
   // Clean up
