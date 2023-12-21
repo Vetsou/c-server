@@ -3,12 +3,17 @@
 #include <string.h>
 
 extern int init_server(ServerHttp *server, ServerLogger logger, int port) {
+  server->logger = logger;
+  server->port = port;
+
   // Create socket
   SOCKET socket_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
   if (socket_fd == INVALID_SOCKET) {
-    log_message(&logger, LOG_LEVEL_ERROR, "Init_sever: error creating socket");
+    log_message(&server->logger, LOG_LEVEL_ERROR, "Init_sever: error creating socket");
     return -1;
   }
+
+  server->socket = socket_fd;
 
   // Define internet address 
   struct sockaddr_in server_addr;
@@ -18,20 +23,15 @@ extern int init_server(ServerHttp *server, ServerLogger logger, int port) {
 
   // Bind socket to address
   if (bind(socket_fd, (struct sockaddr *)&server_addr, sizeof(struct sockaddr)) != 0) {
-    log_message(&logger, LOG_LEVEL_ERROR, "Init_sever: error binding socket");
+    log_message(&server->logger, LOG_LEVEL_ERROR, "Init_sever: error binding socket");
     return -1;
   }
 
   // Listen for connections
   if (listen(socket_fd, 10) != 0) {
-    log_message(&logger, LOG_LEVEL_ERROR, "Init_sever: error setting up listen socket");
+    log_message(&server->logger, LOG_LEVEL_ERROR, "Init_sever: error setting up listen socket");
     return -1;
   }
-
-  // Set server params
-  server->socket = socket_fd;
-  server->port = port;
-  server->logger = logger;
 
   return 0;
 }

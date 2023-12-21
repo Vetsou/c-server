@@ -1,2 +1,6 @@
+# Build files
 bin
 build
+
+# Server config/logs
+server_logs.log

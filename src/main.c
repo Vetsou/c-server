@@ -7,16 +7,16 @@
 const int SERVER_PORT = 8080;
 
 int main(void) {
+  // Initialize server logger
+  ServerLogger logger;
+  create_logger(&logger, "./server_logs.log", LOG_MODE_CONSOLE | LOG_MODE_FILE);
+
   // Initialize Winsock
   WSADATA wsa_data;
   if (WSAStartup(MAKEWORD(2, 2), &wsa_data) != 0) {
-    printf("WSAStartup failed with error: %d\n", WSAGetLastError());
+    log_message(&logger, LOG_LEVEL_ERROR, "Init_sever: error initializing winsock");
     return -1;
   }
-
-  // Initialize server logger
-  ServerLogger logger;
-  create_logger(&logger, LOG_MODE_CONSOLE);
 
   // Create http server
   ServerHttp server;
@@ -25,9 +25,9 @@ int main(void) {
     WSACleanup();
     return -1;
   }
-
-  printf("Server listening on port %d...\n", server.port);
   
+  log_message(&logger, LOG_LEVEL_DEBUG, "Server started...");
+
   SOCKET client_socket;
   char buffer[1024] = {0};
 

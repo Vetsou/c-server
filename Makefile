@@ -9,6 +9,9 @@ INC_DIR := $(SRC_DIR)/include
 BIN_DIR := bin
 OBJ_DIR := build
 
+# Log file
+LOG_FILE := server_logs.log
+
 # EXEC name
 TARGET_NAME := HttpServer
 
@@ -34,7 +37,7 @@ DEPS := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.d,$(SRCS))
 TARGET := $(BIN_DIR)/$(TARGET_NAME)
 
 # Phony targets
-.PHONY: all clean run
+.PHONY: all clean clean_logs run
 
 all: $(TARGET)
 
@@ -53,6 +56,9 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 clean:
 	$(RM) $(BIN_DIR)
 	$(RM) $(OBJ_DIR)
+
+clean_logs:
+	$(RM) $(LOG_FILE)
 
 # Run target
 run: $(TARGET)
