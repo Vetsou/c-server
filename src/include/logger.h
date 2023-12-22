@@ -1,11 +1,11 @@
-#ifndef _SYS_SOCK_H
-#define _SYS_SOCK_H
+#ifndef _LOGGER_H
+#define _LOGGER_H
 
 typedef enum {
   LOG_LEVEL_INFO = 0,
-  LOG_LEVEL_WARN = 1,
-  LOG_LEVEL_ERROR = 2,
-  LOG_LEVEL_DEBUG = 3
+  LOG_LEVEL_WARN,
+  LOG_LEVEL_ERROR,
+  LOG_LEVEL_DEBUG
 } LOG_LEVEL;
 
 typedef enum {
@@ -18,8 +18,11 @@ typedef struct {
   char *filepath;
 } ServerLogger;
 
+// Create/Destroy logger
 extern void create_logger(ServerLogger *logger, const char *log_filepath, LOG_MODE mode);
 extern void destroy_logger(ServerLogger *logger);
+
+// Log message
 extern void log_message(ServerLogger *logger, LOG_LEVEL level, const char *msg);
 
-#endif // _SYS_SOCK_H
+#endif //_LOGGER_H

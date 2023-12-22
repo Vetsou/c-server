@@ -25,7 +25,10 @@ int main(void) {
     WSACleanup();
     return -1;
   }
-  
+
+  HttpResponse response;
+  create_response(&response, STATUSCODE_OK, "Hello from the server");
+
   log_message(&logger, LOG_LEVEL_DEBUG, "Server started...");
 
   SOCKET client_socket;
@@ -38,7 +41,7 @@ int main(void) {
 
       http_recv(&server, client_socket, buffer, 1024);
       printf("Result %s", buffer);
-      http_send(&server, client_socket);
+      http_send(&server, client_socket, response);
 
       closesocket(client_socket);
     }

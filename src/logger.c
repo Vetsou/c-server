@@ -27,10 +27,10 @@ extern void log_message(ServerLogger *logger, LOG_LEVEL level, const char *msg) 
   const char *label = log_level_label[level];
 
   char log_msg[512] = {0};
-  snprintf(log_msg, sizeof(log_msg), "%s %s\n", label, msg);
+  snprintf(log_msg, sizeof(log_msg) / sizeof(char), "%s %s\n", label, msg);
 
   if (logger->mode & LOG_MODE_CONSOLE) {
-    printf("%s\n", log_msg);
+    printf("%s", log_msg);
   }
 
   if (logger->mode & LOG_MODE_FILE) {

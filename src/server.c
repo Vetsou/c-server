@@ -4,7 +4,6 @@
 
 extern int init_server(ServerHttp *server, ServerLogger logger, int port) {
   server->logger = logger;
-  server->port = port;
 
   // Create socket
   SOCKET socket_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -12,8 +11,6 @@ extern int init_server(ServerHttp *server, ServerLogger logger, int port) {
     log_message(&server->logger, LOG_LEVEL_ERROR, "Init_sever: error creating socket");
     return -1;
   }
-
-  server->socket = socket_fd;
 
   // Define internet address 
   struct sockaddr_in server_addr;
@@ -33,6 +30,9 @@ extern int init_server(ServerHttp *server, ServerLogger logger, int port) {
     return -1;
   }
 
+  server->socket = socket_fd;
+  server->port = port;
+
   return 0;
 }
 
@@ -41,10 +41,8 @@ extern int close_server(ServerHttp *server) {
   return closesocket(server->socket);
 }
 
-extern int http_send(ServerHttp *server, SOCKET dest_socket) {
-  const char* http_res = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nConnection: Closed\r\n\r\nHello, World!";
-  
-  if (send(dest_socket, http_res, strlen(http_res), 0) == -1) {
+extern int http_send(ServerHttp *server, SOCKET dest_socket, HttpResponse response) {
+  if (send(dest_socket, response.body, strlen(response.body), 0) == -1) {
     log_message(&server->logger, LOG_LEVEL_ERROR, "Http_send: error sending msg");
     return -1;
   }
@@ -52,7 +50,7 @@ extern int http_send(ServerHttp *server, SOCKET dest_socket) {
   return 0;
 }
 
-extern int http_recv(ServerHttp *server, SOCKET from_socket, char* buffer, unsigned long len) {
+extern int http_recv(ServerHttp *server, SOCKET from_socket, char *buffer, unsigned long len) {
   int bytes_read = recv(from_socket, buffer, len, 0);
 
   if (bytes_read == -1) {
