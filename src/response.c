@@ -20,7 +20,7 @@ void create_response(HttpResponse *res, StatusCode code, char *body) {
   res->body = (char *)malloc(response_body_size * sizeof(char));
 
   // Fill header
-  strncpy(res->body, STATUS_CODE_LABEL[code], strlen(STATUS_CODE_LABEL[code]));
+  strncpy(res->body, STATUS_CODE_LABEL[code], 50);
   strncat(res->body, "Content-Type: text/plain\r\n", 27);
   strncat(res->body, "Connection: Closed\r\n\r\n", 23);
 
@@ -31,5 +31,6 @@ void create_response(HttpResponse *res, StatusCode code, char *body) {
 void destroy_response(HttpResponse *res) {
   if (res->body) {
     free(res->body);
+    res->body = NULL;
   }
 }

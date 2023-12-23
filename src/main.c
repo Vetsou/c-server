@@ -26,10 +26,10 @@ int main(void) {
     return -1;
   }
 
+  log_message(&logger, LOG_LEVEL_INFO, "Server started...");
+
   HttpResponse response;
   create_response(&response, STATUSCODE_OK, "Hello from the server");
-
-  log_message(&logger, LOG_LEVEL_DEBUG, "Server started...");
 
   SOCKET client_socket;
   char buffer[1024] = {0};

@@ -20,6 +20,7 @@ extern void create_logger(ServerLogger *logger, const char *log_filepath, LOG_MO
 extern void destroy_logger(ServerLogger *logger) {
   if (logger->filepath) {
     free(logger->filepath);
+    logger->filepath = NULL;
   }
 }
 
