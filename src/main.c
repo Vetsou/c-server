@@ -42,12 +42,13 @@ int main(void) {
       http_recv(&server, client_socket, buffer, 1024);
       
       HttpRequest req;
-      parse_request(&req, buffer);
-      printf("%d %s\n", req.method, req.path);
-      destroy_request(&req);
+      if (parse_request(&req, buffer) == 0) {
+        printf("%d %s %s\n", req.method, req.path, req.version);
+      } else {
+        printf("Error parsing request REQ:\n %s", buffer);
+      }
 
       http_send(&server, client_socket, response);
-
       closesocket(client_socket);
     }
   }

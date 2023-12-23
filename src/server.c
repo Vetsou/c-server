@@ -38,7 +38,10 @@ extern int init_server(ServerHttp *server, ServerLogger logger, int port) {
 
 extern int close_server(ServerHttp *server) {
   destroy_logger(&server->logger);
-  return closesocket(server->socket);
+  closesocket(server->socket);
+  server = NULL;
+
+  return 0;
 }
 
 extern int http_send(ServerHttp *server, SOCKET dest_socket, HttpResponse response) {

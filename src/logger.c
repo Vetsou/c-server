@@ -22,6 +22,8 @@ extern void destroy_logger(ServerLogger *logger) {
     free(logger->filepath);
     logger->filepath = NULL;
   }
+
+  logger = NULL;
 }
 
 extern void log_message(ServerLogger *logger, LOG_LEVEL level, const char *msg) {

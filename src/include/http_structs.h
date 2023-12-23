@@ -34,10 +34,10 @@ typedef enum {
 typedef struct {
   RequestMethod method;
   char *path;
+  char *version;
 } HttpRequest;
 
 // Create/Destroy request
 extern int parse_request(HttpRequest *res, char *req_str);
-extern int destroy_request(HttpRequest *res);
 
 #endif // _HTTP_STRUCTS_H

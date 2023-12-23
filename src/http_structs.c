@@ -66,34 +66,17 @@ static RequestMethod parse_req_method(const char *method) {
   return HTTP_UNKNOWN; 
 }
 
-static void parse_http_header(HttpRequest *req, char *http_header) {
-  char *tok_buff; // Buffer for tokens
-  size_t ref_index = 0; // Tracks the start of the next token
-  size_t token_count = 0;
+static int parse_req_line(HttpRequest *req, char *http_header) {
+  req->method = parse_req_method(strtok_s(http_header, " ", &http_header));
+  if (req->method == HTTP_UNKNOWN) return -1;
 
-  for (size_t i = 0; i < strlen(http_header); ++i) {
-    if (http_header[i] == ' ') {
-      switch(token_count) {
-        // Parse method
-        case 0:
-          tok_buff = (char *)malloc((i + 1) * sizeof(char));
-          strncpy(tok_buff, http_header, i);
-          req->method = parse_req_method(tok_buff);
-          free(tok_buff);
-          break; 
+  req->path = strtok_s(NULL, " ", &http_header);
+  if (req->path == NULL) return -1;
 
-        // Parse path
-        case 1:
-          req->path = malloc((i - ref_index + 1) * sizeof(char));
-          strncpy(req->path, &http_header[ref_index], i - ref_index);
-          req->path[i - ref_index] = '\0';
-          break;
-      }
+  req->version = strtok_s(NULL, "\r\n", &http_header);
+  if (req->version == NULL) return -1;
 
-      ref_index = i + 1;
-      token_count++;
-    }
-  }
+  return 0;
 }
 
 extern int parse_request(HttpRequest *req, char *req_str) {
@@ -101,17 +84,14 @@ extern int parse_request(HttpRequest *req, char *req_str) {
     return -1;
   }
 
-  char *strtok_ctx = NULL;
-  char *http_header = strtok_s(req_str, "\n", &strtok_ctx);
-  parse_http_header(req, http_header);
+  char *req_lines = NULL;
+  char *http_header = strtok_s(strdup(req_str), "\n", &req_lines);
 
-  return 0;
-}
-
-extern int destroy_request(HttpRequest *req) {
-  if (req->path) {
-    free(req->path);
-    req->path = NULL;
+  if (parse_req_line(req, http_header) != 0) {
+    return -1;
   }
+
+  // TODO parse header fields
+
   return 0;
 }
