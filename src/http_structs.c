@@ -84,7 +84,7 @@ static void parse_http_header(HttpRequest *req, char *http_header) {
 
         // Parse path
         case 1:
-          req->path = malloc((i - ref_index) * sizeof(char));
+          req->path = malloc((i - ref_index + 1) * sizeof(char));
           strncpy(req->path, &http_header[ref_index], i - ref_index);
           req->path[i - ref_index] = '\0';
           break;
