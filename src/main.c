@@ -40,7 +40,12 @@ int main(void) {
       printf("Accepted connection from client %I64d\n", client_socket);
 
       http_recv(&server, client_socket, buffer, 1024);
-      printf("Result %s", buffer);
+      
+      HttpRequest req;
+      parse_request(&req, buffer);
+      printf("%d %s\n", req.method, req.path);
+      destroy_request(&req);
+
       http_send(&server, client_socket, response);
 
       closesocket(client_socket);

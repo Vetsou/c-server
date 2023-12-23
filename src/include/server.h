@@ -2,7 +2,7 @@
 #define _HTTP_SERVER_H
 
 #include <winsock2.h>
-#include "response.h"
+#include "http_structs.h"
 #include "logger.h"
 
 typedef struct ServerHttp {
