@@ -32,23 +32,18 @@ int main(void) {
   create_response(&response, STATUSCODE_OK, "Hello from the server");
 
   SOCKET client_socket;
-  char buffer[1024] = {0};
 
   while (TRUE) {
     client_socket = accept(server.socket, NULL, NULL);
     if (client_socket != INVALID_SOCKET) {
       printf("Accepted connection from client %I64d\n", client_socket);
 
-      http_recv(&server, client_socket, buffer, 1024);
-      
       HttpRequest req;
-      if (parse_request(&req, buffer) == 0) {
-        printf("%d %s %s\n", req.method, req.path, req.version);
-      } else {
-        printf("Error parsing request REQ:\n %s", buffer);
-      }
+      http_recv_request(&server, client_socket, &req);
 
-      http_send(&server, client_socket, response);
+      printf("%d %s %s\n", req.method, req.path, req.version);
+
+      http_send_response(&server, client_socket, &response);
       closesocket(client_socket);
     }
   }

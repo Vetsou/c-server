@@ -16,7 +16,7 @@ extern int init_server(ServerHttp *server, ServerLogger logger, int port);
 extern int close_server(ServerHttp *server);
 
 // Send/Recv data
-extern int http_send(ServerHttp *server, SOCKET dest_socket, HttpResponse response);
-extern int http_recv(ServerHttp *server, SOCKET from_socket, char *buffer, unsigned long len);
+extern int http_send_response(ServerHttp *server, SOCKET dest_socket, HttpResponse *res);
+extern int http_recv_request(ServerHttp *server, SOCKET from_socket, HttpRequest *req);
 
 #endif // _HTTP_SERVER_H

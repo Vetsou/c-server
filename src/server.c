@@ -44,8 +44,8 @@ extern int close_server(ServerHttp *server) {
   return 0;
 }
 
-extern int http_send(ServerHttp *server, SOCKET dest_socket, HttpResponse response) {
-  if (send(dest_socket, response.body, strlen(response.body), 0) == -1) {
+extern int http_send_response(ServerHttp *server, SOCKET dest_socket, HttpResponse *res) {
+  if (send(dest_socket, res->body, strlen(res->body), 0) == -1) {
     log_message(&server->logger, LOG_LEVEL_ERROR, "Http_send: error sending msg");
     return -1;
   }
@@ -53,13 +53,20 @@ extern int http_send(ServerHttp *server, SOCKET dest_socket, HttpResponse respon
   return 0;
 }
 
-extern int http_recv(ServerHttp *server, SOCKET from_socket, char *buffer, unsigned long len) {
-  int bytes_read = recv(from_socket, buffer, len, 0);
+extern int http_recv_request(ServerHttp *server, SOCKET from_socket, HttpRequest *req) {
+  char *buffer = (char *)malloc(HTTP_REQUEST_MAX_SIZE * sizeof(char));
+  int bytes_read = recv(from_socket, buffer, HTTP_REQUEST_MAX_SIZE, 0);
 
   if (bytes_read == -1) {
-    log_message(&server->logger, LOG_LEVEL_ERROR, "Http_recv: error reading msg");
+    log_message(&server->logger, LOG_LEVEL_ERROR, "Http_recv_request: error reading http request");
     return -1;
   }
 
+  if (parse_request(req, buffer) != 0) {
+    log_message(&server->logger, LOG_LEVEL_ERROR, "Http_recv_request: error parsing http request");
+    return -1;
+  }
+
+  free(buffer);
   return bytes_read;
 }

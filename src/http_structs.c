@@ -1,10 +1,6 @@
 #include "include/http_structs.h"
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
-
-const size_t HTTP_REQUEST_MAX_SIZE = 4096;
-const size_t HTTP_RESPONSE_HEADER_SIZE = 4096;
 
 static const char STATUS_CODE_LABEL[10][50] = {
 	"HTTP/1.1 200 OK\r\n",
