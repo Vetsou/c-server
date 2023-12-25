@@ -26,7 +26,7 @@ int main(void) {
     return -1;
   }
 
-  log_message(&logger, LOG_LEVEL_INFO, "Server started...");
+  log_message(&logger, LOG_LEVEL_INFO, "Server started on port %d...\n", SERVER_PORT);
 
   HttpResponse response;
   create_response(&response, STATUSCODE_OK, "Hello from the server");

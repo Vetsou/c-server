@@ -1,6 +1,7 @@
 #include "include/logger.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 #include <stdio.h>
 
 static const char *log_level_label[] = {
@@ -26,20 +27,24 @@ extern void destroy_logger(ServerLogger *logger) {
   logger = NULL;
 }
 
-extern void log_message(ServerLogger *logger, LOG_LEVEL level, const char *msg) {
+extern void log_message(ServerLogger *logger, LOG_LEVEL level, const char *format, ...) {
+  char log_msg[1024] = {0};
   const char *label = log_level_label[level];
-
-  char log_msg[512] = {0};
-  snprintf(log_msg, sizeof(log_msg) / sizeof(char), "%s %s\n", label, msg);
+  
+  // Parse args
+  va_list args;
+  va_start(args, format);
+  vsnprintf(log_msg, sizeof(log_msg) / sizeof(char), format, args);
+  va_end(args);
 
   if (logger->mode & LOG_MODE_CONSOLE) {
-    printf("%s", log_msg);
+    printf("[%s] %s", label, log_msg);
   }
 
   if (logger->mode & LOG_MODE_FILE) {
     FILE *file = NULL;
     fopen_s(&file, logger->filepath, "a");
-    fprintf(file, "%s", log_msg);
+    fprintf(file, "[%s] %s", label, log_msg);
     fclose(file);
   }
 }

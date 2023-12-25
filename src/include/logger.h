@@ -23,6 +23,6 @@ extern void create_logger(ServerLogger *logger, const char *log_filepath, LOG_MO
 extern void destroy_logger(ServerLogger *logger);
 
 // Log message
-extern void log_message(ServerLogger *logger, LOG_LEVEL level, const char *msg);
+extern void log_message(ServerLogger *logger, LOG_LEVEL level, const char *format, ...);
 
 #endif //_LOGGER_H
