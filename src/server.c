@@ -39,8 +39,8 @@ static int http_send_response(ServerHttp *server, SOCKET dest_socket, HttpRespon
 }
 
 static int http_recv_request(ServerHttp *server, SOCKET from_socket, HttpRequest *req) {
-  char *buffer = (char *)malloc(HTTP_REQUEST_MAX_SIZE * sizeof(char));
-  int bytes_read = recv(from_socket, buffer, HTTP_REQUEST_MAX_SIZE, 0);
+  char *buffer = (char *)malloc(MAX_HTTP_REQUEST_SIZE * sizeof(char));
+  int bytes_read = recv(from_socket, buffer, MAX_HTTP_REQUEST_SIZE, 0);
 
   if (bytes_read == -1) {
     log_message(&server->logger, LOG_LEVEL_ERROR, "Http_recv_request: error reading http request");

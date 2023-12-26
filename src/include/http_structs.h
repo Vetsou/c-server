@@ -1,7 +1,19 @@
 #ifndef _HTTP_STRUCTS_H
 #define _HTTP_STRUCTS_H
 
-#define HTTP_REQUEST_MAX_SIZE 4096
+/*
+ * HTTP server request size constants
+ */
+#define MAX_HTTP_REQUEST_SIZE 65536
+#define HTTP_PATH_SIZE 512
+#define HTTP_VERSION_SIZE 10
+
+#define HTTP_HEADER_KEY_SIZE 1024
+#define HTTP_HEADER_VALUE_SIZE 4096
+
+/*
+ * HTTP server response size constants
+ */
 #define HTTP_RESPONSE_HEADER_SIZE 4096
 
 typedef enum {
@@ -36,8 +48,8 @@ typedef enum {
 
 typedef struct {
   RequestMethod method;
-  char *path;
-  char *version;
+  char path[HTTP_PATH_SIZE];
+  char version[HTTP_VERSION_SIZE];
 } HttpRequest;
 
 // Create/Destroy request
