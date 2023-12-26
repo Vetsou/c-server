@@ -26,32 +26,11 @@ int main(void) {
     return -1;
   }
 
-  log_message(&logger, LOG_LEVEL_INFO, "Server started on port %d...\n", SERVER_PORT);
-
-  HttpResponse response;
-  create_response(&response, STATUSCODE_OK, "Hello from the server");
-
-  SOCKET client_socket;
-
-  while (TRUE) {
-    client_socket = accept(server.socket, NULL, NULL);
-    if (client_socket != INVALID_SOCKET) {
-      printf("Accepted connection from client %I64d\n", client_socket);
-
-      HttpRequest req;
-      http_recv_request(&server, client_socket, &req);
-
-      printf("%d %s %s\n", req.method, req.path, req.version);
-
-      http_send_response(&server, client_socket, &response);
-      closesocket(client_socket);
-    }
+  if (server_listen(&server) != 0) {
+    close_server(&server);
+    WSACleanup();
+    return -1;
   }
-
-  // Clean up
-  printf("Server closing...\n");
-  close_server(&server);
-  WSACleanup();
 
   return 0;
 }

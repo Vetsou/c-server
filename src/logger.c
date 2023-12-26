@@ -38,13 +38,13 @@ extern void log_message(ServerLogger *logger, LOG_LEVEL level, const char *forma
   va_end(args);
 
   if (logger->mode & LOG_MODE_CONSOLE) {
-    printf("[%s] %s", label, log_msg);
+    printf("[%s] %s\n", label, log_msg);
   }
 
   if (logger->mode & LOG_MODE_FILE) {
     FILE *file = NULL;
     fopen_s(&file, logger->filepath, "a");
-    fprintf(file, "[%s] %s", label, log_msg);
+    fprintf(file, "[%s] %s\n", label, log_msg);
     fclose(file);
   }
 }

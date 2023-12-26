@@ -11,12 +11,8 @@ typedef struct ServerHttp {
   int port;
 } ServerHttp;
 
-// Init/Close server
 extern int init_server(ServerHttp *server, ServerLogger logger, int port);
+extern int server_listen(ServerHttp *server);
 extern int close_server(ServerHttp *server);
-
-// Send/Recv data
-extern int http_send_response(ServerHttp *server, SOCKET dest_socket, HttpResponse *res);
-extern int http_recv_request(ServerHttp *server, SOCKET from_socket, HttpRequest *req);
 
 #endif // _HTTP_SERVER_H
