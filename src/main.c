@@ -6,6 +6,21 @@
 // Server config
 const int SERVER_PORT = 8080;
 
+int init_server_routes(ServerHttp *server) {
+  HttpResponse res;
+  
+  create_response(&res, STATUSCODE_OK, "Hello from '/' path on server.");
+  server_add_route(server, "/", &res);
+
+  create_response(&res, STATUSCODE_OK, "Hello from HOME");
+  server_add_route(server, "/home", &res);
+  
+  create_response(&res, STATUSCODE_OK, "Hello from CONTACT");
+  server_add_route(server, "/contact", &res);
+
+  return 0;
+}
+
 int main(void) {
   // Initialize server logger
   ServerLogger logger;
@@ -26,6 +41,14 @@ int main(void) {
     return -1;
   }
 
+  // Add server routes
+  if (init_server_routes(&server) != 0) {
+    close_server(&server);
+    WSACleanup();
+    return -1;
+  }
+
+  // Start server
   if (server_listen(&server) != 0) {
     close_server(&server);
     WSACleanup();

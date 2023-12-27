@@ -12,7 +12,7 @@ extern int init_server(ServerHttp *server, ServerLogger logger, int port) {
     return -1;
   }
 
-  // Define internet address 
+  // Define socket address 
   struct sockaddr_in server_addr;
   server_addr.sin_family = AF_INET;
   server_addr.sin_port = htons(port);
@@ -26,6 +26,20 @@ extern int init_server(ServerHttp *server, ServerLogger logger, int port) {
 
   server->socket = socket_fd;
   server->port = port;
+  server->router = NULL;
+  return 0;
+}
+
+extern int server_add_route(ServerHttp *server, char *path, HttpResponse *res) {
+  if (server->router == NULL) {
+    server->router = init_route(path, res);
+    return 0;
+  }
+
+  if (add_route(server->router, path, res) == NULL) {
+    log_message(&server->logger, LOG_LEVEL_ERROR, "Server_add_route: route already exists");
+    return -1;
+  }
   return 0;
 }
 
@@ -34,7 +48,6 @@ static int http_send_response(ServerHttp *server, SOCKET dest_socket, HttpRespon
     log_message(&server->logger, LOG_LEVEL_ERROR, "Http_send: error sending msg");
     return -1;
   }
-
   return 0;
 }
 
@@ -63,10 +76,6 @@ extern int server_listen(ServerHttp *server) {
   }
   log_message(&server->logger, LOG_LEVEL_INFO, "Server started on port %d...", server->port);
 
-  // TODO replace with routes
-  HttpResponse response;
-  create_response(&response, STATUSCODE_OK, "Hello from the server");
-
   while (TRUE) {
     SOCKET client_socket = accept(server->socket, NULL, NULL);
     if (client_socket == INVALID_SOCKET) {
@@ -82,7 +91,16 @@ extern int server_listen(ServerHttp *server) {
       req.method, req.path, req.version
     );
 
-    http_send_response(server, client_socket, &response);
+    Route *found_route = search_routes(server->router, req.path);
+    if (found_route != NULL) http_send_response(server, client_socket, found_route->response);
+    else {
+      HttpResponse res;
+      create_response(&res, STATUSCODE_NOT_FOUND, "Error 404. No route found");
+      http_send_response(server, client_socket, &res);
+      free_response(&res);
+    }
+
+    free_request(&req);
     closesocket(client_socket);
   }
 

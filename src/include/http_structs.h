@@ -14,7 +14,8 @@
 /*
  * HTTP server response size constants
  */
-#define HTTP_RESPONSE_HEADER_SIZE 4096
+#define MAX_HTTP_RESPONSE_SIZE 8192
+#define MAX_HTTP_RESPONSE_HEADER_SIZE 1024
 
 typedef enum {
   STATUSCODE_OK = 0,
@@ -36,7 +37,7 @@ typedef struct {
 
 // Create/Destroy reponse
 extern int create_response(HttpResponse *res, StatusCode code, const char *body);
-extern int destroy_response(HttpResponse *res);
+extern int free_response(HttpResponse *res);
 
 typedef enum {
   HTTP_UNKNOWN = -1,
@@ -48,11 +49,12 @@ typedef enum {
 
 typedef struct {
   RequestMethod method;
-  char path[HTTP_PATH_SIZE];
-  char version[HTTP_VERSION_SIZE];
+  char *path;
+  char *version;
 } HttpRequest;
 
 // Create/Destroy request
-extern int parse_request(HttpRequest *res, char *req_str);
+extern int parse_request(HttpRequest *req, char *req_str);
+extern int free_request(HttpRequest *req);
 
 #endif // _HTTP_STRUCTS_H

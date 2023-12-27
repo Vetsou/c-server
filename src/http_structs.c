@@ -19,7 +19,12 @@ static const char STATUS_CODE_LABEL[10][50] = {
 // HTTP RESPONSE
 //
 extern int create_response(HttpResponse *res, StatusCode code, const char *body) {
-  size_t response_body_size = HTTP_RESPONSE_HEADER_SIZE + strlen(body) + 1;
+  size_t response_body_size = MAX_HTTP_RESPONSE_HEADER_SIZE + strlen(body) + 1;
+  if (response_body_size >= MAX_HTTP_RESPONSE_SIZE) {
+    return -1;
+  }
+
+  res->body = NULL;
   res->body = (char *)malloc(response_body_size * sizeof(char));
 
   // Fill header
@@ -33,13 +38,10 @@ extern int create_response(HttpResponse *res, StatusCode code, const char *body)
   return 0;
 }
 
-extern int destroy_response(HttpResponse *res) {
-  if (res->body) {
+extern int free_response(HttpResponse *res) {
+  if (res->body != NULL) {
     free(res->body);
-    res->body = NULL;
   }
-
-  return 0;
 }
 
 //
@@ -56,6 +58,10 @@ static RequestMethod parse_req_method(const char *method) {
 
 static int parse_req_line(HttpRequest *req, char *http_header) {
   char *token;
+  size_t buffer_size;
+
+  req->path = NULL;
+  req->version = NULL;
 
   // Set request method
   req->method = parse_req_method(strtok_s(http_header, " ", &http_header));
@@ -64,12 +70,18 @@ static int parse_req_line(HttpRequest *req, char *http_header) {
   // Copy HTTP path
   token = strtok_s(NULL, " ", &http_header);
   if (token == NULL || strlen(token) > HTTP_PATH_SIZE) return -1;
-  memcpy(req->path, token, sizeof(req->path));
+  
+  buffer_size = strlen(token) * sizeof(char) + 1;
+  req->path = (char *)malloc(buffer_size);
+  memcpy(req->path, token, buffer_size);
 
   // Copy HTTP version
   token = strtok_s(NULL, "\r\n", &http_header);
   if (token == NULL || strlen(token) > HTTP_VERSION_SIZE) return -1;
-  memcpy(req->version, token, sizeof(req->version));
+
+  buffer_size = strlen(token) * sizeof(char) + 1;
+  req->version = (char *)malloc(buffer_size);
+  memcpy(req->version, token, buffer_size);
 
   return 0;
 }
@@ -99,4 +111,14 @@ extern int parse_request(HttpRequest *req, char *req_str) {
   }
 
   return 0;
+}
+
+extern int free_request(HttpRequest *req) {
+  if (req->path != NULL) {
+    free(req->path);
+  }
+
+  if (req->version != NULL) {
+    free(req->version);
+  }
 }
