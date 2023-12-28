@@ -86,9 +86,9 @@ extern int server_listen(ServerHttp *server) {
     HttpRequest req;
     http_recv_request(server, client_socket, &req);
 
-    log_message(&server->logger, LOG_LEVEL_INFO, "Accepted [%d]: %d %s %s", 
+    log_message(&server->logger, LOG_LEVEL_INFO, "Accepted [%d]: %s %s %s", 
       client_socket, 
-      req.method, req.path, req.version
+      get_method_name(req.method), req.path, req.version
     );
 
     Route *found_route = search_routes(server->router, req.path);

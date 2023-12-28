@@ -1,4 +1,4 @@
-#include "include/http_structs.h"
+#include "include/http_operations.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -13,6 +13,14 @@ static const char STATUS_CODE_LABEL[10][50] = {
 	"HTTP/1.1 404 Not found\r\n",
 	"HTTP/1.1 500 Internal Error\r\n",
 	"HTTP/1.1 501 Not implemented\r\n"
+};
+
+static const char REQUEST_METHOD_NAME[5][7] = {
+  "UNKNOWN",
+  "GET",
+  "POST",
+  "PUT",
+  "DELETE"
 };
 
 //
@@ -42,6 +50,8 @@ extern int free_response(HttpResponse *res) {
   if (res->body != NULL) {
     free(res->body);
   }
+
+  return 0;
 }
 
 //
@@ -99,6 +109,7 @@ extern int parse_request(HttpRequest *req, char *req_str) {
   }
 
   // Parse request fields
+  init_http_headers(&req->headers, 5);
   while ((http_line = strtok_s(req_buffer, "\n", &req_buffer)) != NULL) {
     if (strlen(http_line) == 1) break;
 
@@ -107,7 +118,7 @@ extern int parse_request(HttpRequest *req, char *req_str) {
     while (http_line[0] == ' ') http_line++;
     char* token = strtok_s(NULL, "\n", &http_line);
 
-    // TODO Dynamic array (K,V)
+    add_http_header(&req->headers, field_name, token);
   }
 
   return 0;
@@ -121,4 +132,11 @@ extern int free_request(HttpRequest *req) {
   if (req->version != NULL) {
     free(req->version);
   }
+
+  free_http_headers(&req->headers);
+  return 0;
+}
+
+extern const char* get_method_name(RequestMethod req_enum) {
+  return REQUEST_METHOD_NAME[req_enum];
 }

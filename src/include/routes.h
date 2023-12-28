@@ -1,7 +1,7 @@
 #ifndef _ROUTES_H
 #define _ROUTES_H
 
-#include "http_structs.h"
+#include "http_operations.h"
 
 typedef struct Route {
   char *path;

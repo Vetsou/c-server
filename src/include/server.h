@@ -2,7 +2,7 @@
 #define _HTTP_SERVER_H
 
 #include <winsock2.h>
-#include "http_structs.h"
+#include "http_operations.h"
 #include "routes.h"
 #include "logger.h"
 
