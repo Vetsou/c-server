@@ -60,6 +60,11 @@ static int http_recv_request(ServerHttp *server, SOCKET from_socket, HttpRequest
     return -1;
   }
 
+  if (bytes_read >= MAX_HTTP_REQUEST_SIZE) {
+    log_message(&server->logger, LOG_LEVEL_ERROR, "Http_recv_request: error http request too large");
+    return -1;
+  }
+
   if (parse_request(req, buffer) != 0) {
     log_message(&server->logger, LOG_LEVEL_ERROR, "Http_recv_request: error parsing http request");
     return -1;
@@ -84,7 +89,7 @@ extern int server_listen(ServerHttp *server) {
     }
 
     HttpRequest req;
-    http_recv_request(server, client_socket, &req);
+    if (http_recv_request(server, client_socket, &req) == -1) continue;
 
     log_message(&server->logger, LOG_LEVEL_INFO, "Accepted [%d]: %s %s %s", 
       client_socket, 
@@ -92,10 +97,17 @@ extern int server_listen(ServerHttp *server) {
     );
 
     Route *found_route = search_routes(server->router, req.path);
-    if (found_route != NULL) http_send_response(server, client_socket, found_route->response);
-    else {
+    if (found_route != NULL) {
+      http_send_response(server, client_socket, found_route->response);
+    } else {
+      HttpHeaders headers;
+      init_http_headers(&headers, 3);
+      add_http_header(&headers, "Content-Type", "text/plain");
+      add_http_header(&headers, "Connection", "Closed");
+
       HttpResponse res;
-      create_response(&res, STATUSCODE_NOT_FOUND, "Error 404. No route found");
+      create_response(&res, &headers, STATUSCODE_NOT_FOUND, "Error 404. No route found");
+      
       http_send_response(server, client_socket, &res);
       free_response(&res);
     }

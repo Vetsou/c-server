@@ -7,15 +7,20 @@
 const int SERVER_PORT = 8080;
 
 int init_server_routes(ServerHttp *server) {
+  HttpHeaders headers;
+  init_http_headers(&headers, 3);
+  add_http_header(&headers, "Content-Type", "text/plain");
+  add_http_header(&headers, "Connection", "Closed");
+
   HttpResponse res;
-  
-  create_response(&res, STATUSCODE_OK, "Hello from '/' path on server.");
+
+  create_response(&res, &headers, STATUSCODE_OK, "Hello from '/' path on server.");
   server_add_route(server, "/", &res);
 
-  create_response(&res, STATUSCODE_OK, "Hello from HOME");
+  create_response(&res, &headers, STATUSCODE_OK, "Hello from HOME");
   server_add_route(server, "/home", &res);
   
-  create_response(&res, STATUSCODE_OK, "Hello from CONTACT");
+  create_response(&res, &headers, STATUSCODE_OK, "Hello from CONTACT");
   server_add_route(server, "/contact", &res);
 
   return 0;

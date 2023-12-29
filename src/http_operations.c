@@ -26,7 +26,7 @@ static const char REQUEST_METHOD_NAME[5][7] = {
 //
 // HTTP RESPONSE
 //
-extern int create_response(HttpResponse *res, StatusCode code, const char *body) {
+extern int create_response(HttpResponse *res, HttpHeaders *headers, StatusCode code, const char *body) {
   size_t response_body_size = MAX_HTTP_RESPONSE_HEADER_SIZE + strlen(body) + 1;
   if (response_body_size >= MAX_HTTP_RESPONSE_SIZE) {
     return -1;
@@ -37,8 +37,13 @@ extern int create_response(HttpResponse *res, StatusCode code, const char *body)
 
   // Fill header
   strncpy(res->body, STATUS_CODE_LABEL[code], 50);
-  strncat(res->body, "Content-Type: text/plain\r\n", 27);
-  strncat(res->body, "Connection: Closed\r\n\r\n", 23);
+  for (size_t i = 0; i < headers->length; ++i) {
+    strncat(res->body, headers->items[i].key, HTTP_HEADER_KEY_SIZE);
+    strcat(res->body, ": ");
+    strncat(res->body, headers->items[i].value, HTTP_HEADER_VALUE_SIZE);
+    strcat(res->body, "\r\n");
+  }
+  strcat(res->body, "\r\n");
 
   // Fill body
   strncat(res->body, body, strlen(body));

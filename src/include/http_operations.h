@@ -3,21 +3,18 @@
 
 #include "http_header.h"
 
-/*
- * HTTP server request size constants
- */
+// HTTP server request size constants
 #define MAX_HTTP_REQUEST_SIZE 16384
 #define HTTP_PATH_SIZE 512
 #define HTTP_VERSION_SIZE 10
 
-#define HTTP_HEADER_KEY_SIZE 128
-#define HTTP_HEADER_VALUE_SIZE 128
-
-/*
- * HTTP server response size constants
- */
+// HTTP server response size constants
 #define MAX_HTTP_RESPONSE_SIZE 8192
 #define MAX_HTTP_RESPONSE_HEADER_SIZE 1024
+
+// HTTP headers size constants
+#define HTTP_HEADER_KEY_SIZE 128
+#define HTTP_HEADER_VALUE_SIZE 128
 
 typedef enum {
   STATUSCODE_OK = 0,
@@ -38,7 +35,7 @@ typedef struct {
 } HttpResponse;
 
 // Create/Destroy reponse
-extern int create_response(HttpResponse *res, StatusCode code, const char *body);
+extern int create_response(HttpResponse *res, HttpHeaders *headers, StatusCode code, const char *body);
 extern int free_response(HttpResponse *res);
 
 typedef enum {
