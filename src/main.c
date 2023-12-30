@@ -9,19 +9,27 @@ const int SERVER_PORT = 8080;
 int init_server_routes(ServerHttp *server) {
   HttpHeaders headers;
   init_http_headers(&headers, 3);
-  add_http_header(&headers, "Content-Type", "text/plain");
+  add_http_header(&headers, "Content-Type", "text/html");
   add_http_header(&headers, "Connection", "Closed");
 
   HttpResponse res;
 
-  create_response(&res, &headers, STATUSCODE_OK, "Hello from '/' path on server.");
+  create_file_response(&res, &headers, STATUSCODE_OK, "./html/main.html");
   server_add_route(server, "/", &res);
 
-  create_response(&res, &headers, STATUSCODE_OK, "Hello from HOME");
+  create_file_response(&res, &headers, STATUSCODE_OK, "./html/home.html");
   server_add_route(server, "/home", &res);
   
-  create_response(&res, &headers, STATUSCODE_OK, "Hello from CONTACT");
+  create_file_response(&res, &headers, STATUSCODE_OK, "./html/contact.html");
   server_add_route(server, "/contact", &res);
+
+  HttpHeaders css_header;
+  init_http_headers(&css_header, 3);
+  add_http_header(&css_header, "Content-Type", "text/css");
+  add_http_header(&css_header, "Connection", "Closed");
+
+  create_file_response(&res, &css_header, STATUSCODE_OK, "./css/styles.css");
+  server_add_route(server, "/css/styles.css", &res);
 
   return 0;
 }

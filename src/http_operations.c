@@ -1,6 +1,7 @@
 #include "include/http_operations.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 static const char STATUS_CODE_LABEL[10][50] = {
 	"HTTP/1.1 200 OK\r\n",
@@ -48,6 +49,37 @@ extern int create_response(HttpResponse *res, HttpHeaders *headers, StatusCode c
   // Fill body
   strncat(res->body, body, strlen(body));
 
+  return 0;
+}
+
+extern int create_file_response(HttpResponse *res, HttpHeaders *headers, StatusCode code, const char *file_path) {
+  FILE *file = fopen(file_path, "rb");
+  if (file == NULL) return -1;
+
+  fseek(file, 0, SEEK_END);
+  size_t file_size = ftell(file);
+  fseek(file, 0, SEEK_SET);
+
+  size_t response_body_size = MAX_HTTP_RESPONSE_HEADER_SIZE + file_size + 1;
+  if (response_body_size >= MAX_HTTP_RESPONSE_SIZE) {
+    fclose(file);
+    return -1;
+  }
+
+  res->body = NULL;
+  res->body = (char *)malloc(response_body_size * sizeof(char));
+
+  strncpy(res->body, STATUS_CODE_LABEL[code], 50);
+  for (size_t i = 0; i < headers->length; ++i) {
+    strncat(res->body, headers->items[i].key, HTTP_HEADER_KEY_SIZE);
+    strcat(res->body, ": ");
+    strncat(res->body, headers->items[i].value, HTTP_HEADER_VALUE_SIZE);
+    strcat(res->body, "\r\n");
+  }
+  strcat(res->body, "\r\n");
+
+  fread(res->body + strlen(res->body), 1, file_size, file);
+  fclose(file);
   return 0;
 }
 

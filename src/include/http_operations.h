@@ -36,6 +36,7 @@ typedef struct {
 
 // Create/Destroy reponse
 extern int create_response(HttpResponse *res, HttpHeaders *headers, StatusCode code, const char *body);
+extern int create_file_response(HttpResponse *res, HttpHeaders *headers, StatusCode code, const char *file_path);
 extern int free_response(HttpResponse *res);
 
 typedef enum {
