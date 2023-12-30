@@ -18,4 +18,4 @@ mkdir build
 # Compile
 make
 ```
-Inside the bin folder a ```HttpServer.exe``` file should be created. Copy the ```html``` and ```css``` files inside the bin folder and run the .exe file.
+Inside the bin folder a ```HttpServer.exe``` file should be created. Copy the ```html``` and ```css``` folders inside the bin folder and run the .exe file.
