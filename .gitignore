@@ -1,6 +1,6 @@
 # Build files
 bin
-build
+obj
 
-# Server config/logs
+# Debug server logs
 server_logs.log
