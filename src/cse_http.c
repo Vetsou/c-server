@@ -1,6 +1,7 @@
 #include "include/cse_http.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 static const char* CSE_ParseHttpStatusLabel(CSE_STATUS_CODE status_code) {
   switch (status_code) {
@@ -74,14 +75,18 @@ static CSE_HttpRequest* CSE_ParseHttpReqLine(char *http_req_line) {
 
 CSE_HttpHeaderList* CSE_InitHttpHeaders(const size_t capacity) {
   CSE_HttpHeaderList *header_list = (CSE_HttpHeaderList *)malloc(sizeof(CSE_HttpHeaderList));
-  header_list->items = (CSE_HttpHeader *)malloc(sizeof(CSE_HttpHeader) * capacity);
-  header_list->capacity = capacity;
-  header_list->length = 0;
 
+  CSE_HttpHeader *headers = (CSE_HttpHeader *)malloc(sizeof(CSE_HttpHeader) * capacity);
   for (size_t i = 0; i < capacity; ++i) {
-    header_list->items[i].name = NULL;
-    header_list->items[i].value = NULL;
+    headers[i].name = NULL;
+    headers[i].value = NULL;
   }
+
+  *header_list = (CSE_HttpHeaderList) {
+    .capacity = capacity,
+    .items = headers,
+    .length = 0
+  };
 
   return header_list;
 }
@@ -126,7 +131,7 @@ void CSE_FreeHttpHeaders(CSE_HttpHeaderList *header_list) {
 
 
 
-CSE_HttpResponse* CSE_InitHttpResponse(CSE_STATUS_CODE code, const char *content) {
+CSE_HttpResponse* CSE_InitHttpResponse(CSE_STATUS_CODE code, const CSE_HttpHeaderList *headers, const char *content) {
   size_t res_body_size = HTTP_RES_HEADER_LIMIT + strnlen(content, HTTP_RES_BODY_LIMIT) + 1;
   if (res_body_size >= HTTP_RES_LEN_LIMIT) {
     return NULL;
@@ -134,6 +139,13 @@ CSE_HttpResponse* CSE_InitHttpResponse(CSE_STATUS_CODE code, const char *content
 
   char *res_body = (char *)malloc(res_body_size);
   strncpy(res_body, CSE_ParseHttpStatusLabel(code), HTTP_STATUS_LABEL_SIZE);
+
+  for (size_t i = 0; i < headers->length; ++i) {
+    strncat(res_body, headers->items[i].name, HTTP_HEADER_ITEM_LIMIT);
+    strcat(res_body, ": ");
+    strncat(res_body, headers->items[i].value, HTTP_HEADER_ITEM_LIMIT);
+    strcat(res_body, "\r\n");
+  }
   strcat(res_body, "\r\n");
   strcat(res_body, content);
   
@@ -154,6 +166,36 @@ void CSE_FreeHttpResponse(CSE_HttpResponse *res) {
 
   free(res);
   res = NULL;
+}
+
+CSE_HttpResponse* CSE_CreateHtmlResponse(CSE_STATUS_CODE code, const char *html_path) {
+  FILE *fd = fopen64(html_path, "r");
+  if (fd == NULL) {
+    return NULL;
+  }
+
+  size_t file_start = ftello64(fd);
+
+  fseeko64(fd, 0L, SEEK_END);
+  size_t file_size = ftello64(fd);
+  if (file_size >= HTTP_RES_BODY_LIMIT) {
+    return NULL;
+  }
+
+  fseeko64(fd, file_start, SEEK_SET);
+  char *html_buff = (char *)malloc(file_size);
+  fread(html_buff, sizeof(char), file_size, fd);
+  fclose(fd);
+
+  CSE_HttpHeaderList *headers = CSE_InitHttpHeaders(4);
+  CSE_AddHttpHeader(headers, "Content-Type", "text/html");
+  CSE_AddHttpHeader(headers, "Connection", "Closed");
+
+  CSE_HttpResponse *res = CSE_InitHttpResponse(code, headers, html_buff);
+  CSE_FreeHttpHeaders(headers);
+  free(html_buff);
+
+  return res;
 }
 
 

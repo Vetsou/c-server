@@ -47,9 +47,10 @@ typedef struct {
   char *body;
 } CSE_HttpResponse;
 
-extern CSE_HttpResponse* CSE_InitHttpResponse(CSE_STATUS_CODE code, const char *content);
+extern CSE_HttpResponse* CSE_InitHttpResponse(CSE_STATUS_CODE code, const CSE_HttpHeaderList *headers, const char *content);
 extern void CSE_FreeHttpResponse(CSE_HttpResponse *res);
 
+extern CSE_HttpResponse* CSE_CreateHtmlResponse(CSE_STATUS_CODE code, const char *html_path);
 
 ///////////////////////////////////////////////////////////
 // HTTP request functions and structures.

@@ -4,9 +4,9 @@
 
 static CSE_Route* CSE_InitServerRouter() {
   CSE_Route *router = NULL;
-  router = CSE_AddRoute(router, "/", CSE_InitHttpResponse(200, "Response from HOME PAGE\nPath: /"));
-  router = CSE_AddRoute(router, "/about", CSE_InitHttpResponse(200, "Response from ABOUT PAGE\nPath: /about"));
-  router = CSE_AddRoute(router, "/contact", CSE_InitHttpResponse(200, "Response from CONTACT PAGE\nPath: /contact"));
+  router = CSE_AddRoute(router, "/", CSE_CreateHtmlResponse(STATUS_OK, "./static/index.html"));
+  router = CSE_AddRoute(router, "/about", CSE_CreateHtmlResponse(STATUS_OK, "./static/about.html"));
+  router = CSE_AddRoute(router, "/contact", CSE_CreateHtmlResponse(STATUS_OK, "./static/contact.html"));
 
   return router;
 }
