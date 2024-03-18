@@ -148,7 +148,7 @@ CSE_HttpResponse* CSE_InitHttpResponse(CSE_STATUS_CODE code, const CSE_HttpHeade
   }
   strcat(res_body, "\r\n");
   strcat(res_body, content);
-  
+
   CSE_HttpResponse *res = (CSE_HttpResponse *)malloc(sizeof(CSE_HttpResponse));
   *res = (CSE_HttpResponse) {
     .body = res_body,
@@ -169,7 +169,7 @@ void CSE_FreeHttpResponse(CSE_HttpResponse *res) {
 }
 
 CSE_HttpResponse* CSE_CreateHtmlResponse(CSE_STATUS_CODE code, const char *html_path) {
-  FILE *fd = fopen64(html_path, "r");
+  FILE *fd = fopen64(html_path, "rt");
   if (fd == NULL) {
     return NULL;
   }
@@ -183,11 +183,12 @@ CSE_HttpResponse* CSE_CreateHtmlResponse(CSE_STATUS_CODE code, const char *html_
   }
 
   fseeko64(fd, file_start, SEEK_SET);
-  char *html_buff = (char *)malloc(file_size);
-  fread(html_buff, sizeof(char), file_size, fd);
+  char *html_buff = (char *)malloc(file_size + 1);
+  size_t bytes_read = fread(html_buff, sizeof(char), file_size, fd);
+  html_buff[bytes_read] = '\0';
   fclose(fd);
 
-  CSE_HttpHeaderList *headers = CSE_InitHttpHeaders(4);
+  CSE_HttpHeaderList *headers = CSE_InitHttpHeaders(3);
   CSE_AddHttpHeader(headers, "Content-Type", "text/html");
   CSE_AddHttpHeader(headers, "Connection", "Closed");
 

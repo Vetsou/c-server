@@ -2,11 +2,15 @@
 #include "include/cse_http.h"
 #include <errno.h>
 
+static CSE_HttpResponse* CSE_HandleHomeRoute() { return CSE_CreateHtmlResponse(STATUS_OK, "./static/index.html"); }
+static CSE_HttpResponse* CSE_HandleAboutRoute() { return CSE_CreateHtmlResponse(STATUS_OK, "./static/about.html"); }
+static CSE_HttpResponse* CSE_HandleContactRoute() { return CSE_CreateHtmlResponse(STATUS_OK, "./static/contact.html"); }
+
 static CSE_Route* CSE_InitServerRouter() {
   CSE_Route *router = NULL;
-  router = CSE_AddRoute(router, "/", CSE_CreateHtmlResponse(STATUS_OK, "./static/index.html"));
-  router = CSE_AddRoute(router, "/about", CSE_CreateHtmlResponse(STATUS_OK, "./static/about.html"));
-  router = CSE_AddRoute(router, "/contact", CSE_CreateHtmlResponse(STATUS_OK, "./static/contact.html"));
+  router = CSE_AddRoute(router, "/", CSE_HandleHomeRoute);
+  router = CSE_AddRoute(router, "/about", CSE_HandleAboutRoute);
+  router = CSE_AddRoute(router, "/contact", CSE_HandleContactRoute);
 
   return router;
 }
@@ -120,7 +124,7 @@ void CSE_RunServer(CSE_Server *server) {
     CSE_FreeHttpRequest(req);
 
     // Send response
-    CSE_SendServerResponse(server, client_sock, found_route->res);
+    CSE_SendServerResponse(server, client_sock, found_route->handler());
     CSE_SocketClose(client_sock);
   }
 }

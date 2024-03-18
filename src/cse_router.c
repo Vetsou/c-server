@@ -2,10 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-CSE_Route* CSE_InitRoute(const char *path, CSE_HttpResponse *res) {
+CSE_Route* CSE_InitRoute(const char *path, CSE_RouteHandler handler) {
   CSE_Route *route = (CSE_Route *)malloc(sizeof(CSE_Route));
   *route = (CSE_Route) {
-    .res = res,
+    .handler = handler,
     .path = strdup(path),
     .left = NULL,
     .right = NULL
@@ -14,9 +14,9 @@ CSE_Route* CSE_InitRoute(const char *path, CSE_HttpResponse *res) {
   return route;
 }
 
-CSE_Route* CSE_AddRoute(CSE_Route *root, char *path, CSE_HttpResponse *res) {
+CSE_Route* CSE_AddRoute(CSE_Route *root, char *path, CSE_RouteHandler handler) {
   if (root == NULL) {
-    return CSE_InitRoute(path, res);
+    return CSE_InitRoute(path, handler);
   }
 
   int comparator = strncmp(path, root->path, HTTP_REQ_URI_LIMIT);
@@ -24,9 +24,9 @@ CSE_Route* CSE_AddRoute(CSE_Route *root, char *path, CSE_HttpResponse *res) {
   if (comparator == 0) {
     return NULL;
   } else if (comparator > 0) {
-    root->right = CSE_AddRoute(root->right, path, res);
+    root->right = CSE_AddRoute(root->right, path, handler);
   } else {
-    root->left = CSE_AddRoute(root->left, path, res);
+    root->left = CSE_AddRoute(root->left, path, handler);
   }
 
   return root;
