@@ -2,6 +2,15 @@
 #include "include/cse_http.h"
 #include <errno.h>
 
+static CSE_Route* CSE_InitServerRouter() {
+  CSE_Route *router = NULL;
+  router = CSE_AddRoute(router, "/", CSE_InitHttpResponse(200, "Response from HOME PAGE\nPath: /"));
+  router = CSE_AddRoute(router, "/about", CSE_InitHttpResponse(200, "Response from ABOUT PAGE\nPath: /about"));
+  router = CSE_AddRoute(router, "/contact", CSE_InitHttpResponse(200, "Response from CONTACT PAGE\nPath: /contact"));
+
+  return router;
+}
+
 static CSE_HttpRequest* CSE_RecvServerRequest(CSE_Server* server, CSE_Socket client_sock) {
   char *buffer = (char *)malloc(HTTP_REQ_LEN_LIMIT);
   int bytes_read = recv(client_sock, buffer, HTTP_REQ_LEN_LIMIT, 0);
@@ -37,11 +46,6 @@ static void CSE_SendServerResponse(CSE_Server* server, CSE_Socket client, CSE_Ht
   }
 }
 
-static CSE_Route* CSE_GetRoute(CSE_Route *root_route, char *uri) {
-  if (root_route == NULL) return NULL;
-  return CSE_SearchRoute(root_route, uri);
-}
-
 
 
 CSE_Server* CSE_InitServer(int port, CSE_LOG_MODE log_mode) {
@@ -69,7 +73,7 @@ CSE_Server* CSE_InitServer(int port, CSE_LOG_MODE log_mode) {
 
   CSE_Server *server = (CSE_Server *)malloc(sizeof(CSE_Server));
   *server = (CSE_Server) {
-    .router = CSE_InitRoute("/", CSE_InitHttpResponse(200, "Response from SITE\nPath: \\")),
+    .router = CSE_InitServerRouter(),
     .socket = socket_fd,
     .logger = logger,
     .port = port
@@ -106,7 +110,7 @@ void CSE_RunServer(CSE_Server *server) {
       client_sock, req->method, req->uri, req->version
     );
 
-    CSE_Route *found_route = CSE_GetRoute(server->router, req->uri);
+    CSE_Route *found_route = CSE_SearchRoute(server->router, req->uri);
     if (found_route == NULL) {
       CSE_LogMsg(server->logger, LOG_WARN, "Route path %s not found", req->uri);
       CSE_SocketClose(client_sock);
