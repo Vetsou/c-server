@@ -133,8 +133,10 @@ void CSE_FreeServer(CSE_Server *server) {
     server->logger = NULL;
   }
 
+  CSE_FreeRoutes(server->router);
   CSE_SocketClose(server->socket);
   WSACleanup();
+
   free(server);
   server = NULL;
 }
