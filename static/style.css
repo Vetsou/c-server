@@ -2,4 +2,47 @@ body {
   margin: 0;
   padding: 0;
   font-family: monospace;
+  background-color: #aaa;
+}
+
+.navbar {
+  padding: 12px 10px;
+  color: #eee;
+  background-color: #444;
+  border-bottom: 3px solid #dfaf49;
+}
+
+.navbar a {
+  color: #eee;
+  text-decoration: none;
+  font-size: large;
+}
+
+.navbar a:hover {
+  color: #dfaf49;
+  text-decoration: underline;
+}
+
+.navbar h2 {
+  margin: 0;
+  margin-bottom: 8px;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+}
+
+ul li {
+  padding-right: 10px;
+}
+
+.content {
+  padding: 18px;
+}
+
+.content p {
+  font-size: 13px;
 }

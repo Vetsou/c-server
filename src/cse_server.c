@@ -150,11 +150,7 @@ void CSE_RunServer(CSE_Server *server) {
 void CSE_FreeServer(CSE_Server *server) {
   CSE_LogMsg(server->logger, LOG_INFO, "Closing server...");
 
-  if (server->logger) {
-    CSE_FreeLogger(server->logger);
-    server->logger = NULL;
-  }
-
+  CSE_FreeLogger(server->logger);
   CSE_FreeRoutes(server->router);
   CSE_SocketClose(server->socket);
   WSACleanup();
