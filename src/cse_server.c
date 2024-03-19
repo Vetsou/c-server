@@ -2,15 +2,17 @@
 #include "include/cse_http.h"
 #include <errno.h>
 
-static CSE_HttpResponse* CSE_HandleHomeRoute() { return CSE_CreateHtmlResponse(STATUS_OK, "./static/index.html"); }
-static CSE_HttpResponse* CSE_HandleAboutRoute() { return CSE_CreateHtmlResponse(STATUS_OK, "./static/about.html"); }
-static CSE_HttpResponse* CSE_HandleContactRoute() { return CSE_CreateHtmlResponse(STATUS_OK, "./static/contact.html"); }
+static CSE_HttpResponse* CSE_HandleHomeRoute()    { return CSE_CreateFileResponse(STATUS_OK, "./static/index.html", "text/html");   }
+static CSE_HttpResponse* CSE_HandleAboutRoute()   { return CSE_CreateFileResponse(STATUS_OK, "./static/about.html", "text/html");   }
+static CSE_HttpResponse* CSE_HandleContactRoute() { return CSE_CreateFileResponse(STATUS_OK, "./static/contact.html", "text/html"); }
+static CSE_HttpResponse* CSE_HandleStyles()       { return CSE_CreateFileResponse(STATUS_OK, "./static/style.css", "text/css");     }
 
 static CSE_Route* CSE_InitServerRouter() {
   CSE_Route *router = NULL;
   router = CSE_AddRoute(router, "/", CSE_HandleHomeRoute);
   router = CSE_AddRoute(router, "/about", CSE_HandleAboutRoute);
   router = CSE_AddRoute(router, "/contact", CSE_HandleContactRoute);
+  router = CSE_AddRoute(router, "/styles.css", CSE_HandleStyles);
 
   return router;
 }

@@ -168,7 +168,7 @@ void CSE_FreeHttpResponse(CSE_HttpResponse *res) {
   res = NULL;
 }
 
-CSE_HttpResponse* CSE_CreateHtmlResponse(CSE_STATUS_CODE code, const char *html_path) {
+CSE_HttpResponse* CSE_CreateFileResponse(CSE_STATUS_CODE code, const char *html_path, char *res_type) {
   FILE *fd = fopen64(html_path, "rt");
   if (fd == NULL) {
     return NULL;
@@ -189,7 +189,7 @@ CSE_HttpResponse* CSE_CreateHtmlResponse(CSE_STATUS_CODE code, const char *html_
   fclose(fd);
 
   CSE_HttpHeaderList *headers = CSE_InitHttpHeaders(3);
-  CSE_AddHttpHeader(headers, "Content-Type", "text/html");
+  CSE_AddHttpHeader(headers, "Content-Type", res_type);
   CSE_AddHttpHeader(headers, "Connection", "Closed");
 
   CSE_HttpResponse *res = CSE_InitHttpResponse(code, headers, html_buff);
