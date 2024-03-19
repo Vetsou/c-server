@@ -18,6 +18,7 @@ SYSTEM 				?= WINDOWS
 SOURCE_PATH 	?= src
 RELEASE_PATH 	?= bin
 OBJ_PATH			?= obj
+STATIC_PATH		?= static
 
 # Define include paths
 INCLUDE_PATHS ?= -I$(SOURCE_PATH)/include
@@ -45,6 +46,8 @@ SERVER_NAME 	?= http_server
 # ============================================================
 
 # Define SYSTEM specific commands and libs
+CPY				:= xcopy /s /i
+MDIR			:= mkdir
 RM				:= del /Q
 LIB_FLAGS	:= -lws2_32
 
@@ -80,6 +83,12 @@ $(OBJ_PATH)/%.o: $(SOURCE_PATH)/%.c
 
 # Compile and build server
 all: $(TARGET)
+
+# Init the project
+setup:
+	$(MDIR) $(OBJ_PATH)
+	$(MDIR) $(RELEASE_PATH)
+	$(CPY) $(STATIC_PATH) $(RELEASE_PATH)\static
 
 # Delete all output files (.d .o .exe)
 clean:
