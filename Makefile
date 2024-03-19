@@ -12,22 +12,22 @@
 # ============================================================
 
 # Define system: LINUX, WINDOWS
-SYSTEM 				?= WINDOWS
+SYSTEM ?= WINDOWS
 
 # Define project paths
-SOURCE_PATH 	?= src
-RELEASE_PATH 	?= bin
-OBJ_PATH			?= obj
-STATIC_PATH		?= static
+SOURCE_PATH ?= src
+RELEASE_PATH ?= bin
+OBJ_PATH ?= obj
+STATIC_PATH ?= static
 
 # Define include paths
 INCLUDE_PATHS ?= -I$(SOURCE_PATH)/include
 
 # Define compiler
-CC 						:= gcc -std=c99 -m64
+CC := gcc -std=c99 -m64
 
 # Define compiler flags
-CFLAGS 				:= -Wall -Wextra -MMD -MP $(INCLUDE_PATHS)
+CFLAGS := -Wall -Wextra -MMD -MP $(INCLUDE_PATHS)
 
 
 # ============================================================
@@ -38,7 +38,7 @@ CFLAGS 				:= -Wall -Wextra -MMD -MP $(INCLUDE_PATHS)
 LOG_FILE_PATH ?= server_logs.log
 
 # Define server release file name
-SERVER_NAME 	?= http_server
+SERVER_NAME ?= http_server
 
 
 # ============================================================
@@ -46,9 +46,9 @@ SERVER_NAME 	?= http_server
 # ============================================================
 
 # Define SYSTEM specific commands and libs
-CPY				:= xcopy /s /i
-MDIR			:= mkdir
-RM				:= del /Q
+CPY := xcopy /s /i
+MDIR := mkdir
+RM := del /Q
 LIB_FLAGS	:= -lws2_32
 
 
@@ -57,12 +57,12 @@ LIB_FLAGS	:= -lws2_32
 # ============================================================
 
 # Define files
-SRCS 		?= $(wildcard $(SOURCE_PATH)/*.c)
-OBJS 		?= $(patsubst $(SOURCE_PATH)/%.c,$(OBJ_PATH)/%.o,$(SRCS))
-DEPS 		?= $(patsubst $(SOURCE_PATH)/%.c,$(OBJ_PATH)/%.d,$(SRCS))
+SRCS ?= $(wildcard $(SOURCE_PATH)/*.c)
+OBJS ?= $(patsubst $(SOURCE_PATH)/%.c,$(OBJ_PATH)/%.o,$(SRCS))
+DEPS ?= $(patsubst $(SOURCE_PATH)/%.c,$(OBJ_PATH)/%.d,$(SRCS))
 
 # Define target
-TARGET 	?= $(RELEASE_PATH)/$(SERVER_NAME)
+TARGET ?= $(RELEASE_PATH)/$(SERVER_NAME)
 
 
 # ============================================================
@@ -78,7 +78,7 @@ $(TARGET): $(OBJS)
 
 # Define object files rule
 $(OBJ_PATH)/%.o: $(SOURCE_PATH)/%.c
-	$(CC) $(CFLAGS) -c $< -o $@ 
+	$(CC) $(CFLAGS) -c $< -o $@
 
 
 # Compile and build server
