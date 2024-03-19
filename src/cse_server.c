@@ -2,17 +2,19 @@
 #include "include/cse_http.h"
 #include <errno.h>
 
-static CSE_HttpResponse* CSE_HandleHomeRoute()    { return CSE_CreateFileResponse(STATUS_OK, "./static/index.html", "text/html");   }
-static CSE_HttpResponse* CSE_HandleAboutRoute()   { return CSE_CreateFileResponse(STATUS_OK, "./static/about.html", "text/html");   }
-static CSE_HttpResponse* CSE_HandleContactRoute() { return CSE_CreateFileResponse(STATUS_OK, "./static/contact.html", "text/html"); }
-static CSE_HttpResponse* CSE_HandleStyles()       { return CSE_CreateFileResponse(STATUS_OK, "./static/style.css", "text/css");     }
+static CSE_HttpResponse* CSE_HandleHomeRoute()    { return CSE_CreateFileResponse(STATUS_OK, "./static/index.html", "text/html");            }
+static CSE_HttpResponse* CSE_HandleAboutRoute()   { return CSE_CreateFileResponse(STATUS_OK, "./static/about.html", "text/html");            }
+static CSE_HttpResponse* CSE_HandleContactRoute() { return CSE_CreateFileResponse(STATUS_OK, "./static/contact.html", "text/html");          }
+static CSE_HttpResponse* CSE_HandleStyles()       { return CSE_CreateFileResponse(STATUS_OK, "./static/style.css", "text/css");              }
+static CSE_HttpResponse* CSE_HandleNotFound()     { return CSE_CreateFileResponse(STATUS_NOT_FOUND, "./static/not_found.html", "text/html"); }
 
 static CSE_Route* CSE_InitServerRouter() {
   CSE_Route *router = NULL;
   router = CSE_AddRoute(router, "/", CSE_HandleHomeRoute);
+  router = CSE_AddRoute(router, "*", CSE_HandleNotFound);
+  router = CSE_AddRoute(router, "/style.css", CSE_HandleStyles);
   router = CSE_AddRoute(router, "/about", CSE_HandleAboutRoute);
   router = CSE_AddRoute(router, "/contact", CSE_HandleContactRoute);
-  router = CSE_AddRoute(router, "/styles.css", CSE_HandleStyles);
 
   return router;
 }
@@ -35,6 +37,7 @@ static CSE_HttpRequest* CSE_RecvServerRequest(CSE_Server* server, CSE_Socket cli
     return NULL;
   }
 
+  buffer[bytes_read] = '\0';
   CSE_HttpRequest *req = CSE_ParseHttpRequest(buffer);
   if (req == NULL) {
     CSE_LogMsg(server->logger, LOG_ERROR, "Error parsing http request");
@@ -89,7 +92,7 @@ CSE_Server* CSE_InitServer(int port, CSE_LOG_MODE log_mode) {
 }
 
 void CSE_RunServer(CSE_Server *server) {
-  if (listen(server->socket, 10) != 0) {
+  if (listen(server->socket, 15) != 0) {
     CSE_LogMsg(server->logger, LOG_ERROR, "Error setting up listen socket (WinErr: %d)", WSAGetLastError());
     exit(EXIT_FAILURE);
   }
@@ -116,17 +119,30 @@ void CSE_RunServer(CSE_Server *server) {
       client_sock, req->method, req->uri, req->version
     );
 
+    // Try to find route
     CSE_Route *found_route = CSE_SearchRoute(server->router, req->uri);
     if (found_route == NULL) {
       CSE_LogMsg(server->logger, LOG_WARN, "Route path %s not found", req->uri);
+
+      // Send NOT_FOUND response
+      CSE_Route *fallback_route = CSE_SearchRoute(server->router, "*");
+      if (fallback_route != NULL) {
+        CSE_HttpResponse *res = fallback_route->handler();
+        CSE_SendServerResponse(server, client_sock, res);
+        CSE_FreeHttpResponse(res);
+      }
+
       CSE_SocketClose(client_sock);
       CSE_FreeHttpRequest(req);
       continue;
     }
-    CSE_FreeHttpRequest(req);
 
     // Send response
-    CSE_SendServerResponse(server, client_sock, found_route->handler());
+    CSE_HttpResponse *res = found_route->handler();
+    CSE_SendServerResponse(server, client_sock, res);
+    CSE_FreeHttpResponse(res);
+
+    CSE_FreeHttpRequest(req);
     CSE_SocketClose(client_sock);
   }
 }
